@@ -7,6 +7,10 @@ void Game::initVar()
 	this->playerCar.loadFromFile("CarW-E(G).png");
 	this->plr.setTexture(playerCar);
 	this->plr.setScale(0.03, 0.03);
+
+	this->dot.loadFromFile("Position.png");
+	this->mark.setTexture(this->dot);
+	this->mark.setScale(0.025, 0.025);
 	/*this->plr.setPosition(100, 100);*/
 
 	//Johirul's code
@@ -15,6 +19,11 @@ void Game::initVar()
 	this->minimap_border.setFillColor(Color(0, 0, 0, 100));
 	this->minimap_border.setOutlineColor(Color::White);
 	this->minimap_border.setOutlineThickness(2.f);
+
+	this->left_most_x = numeric_limits<float>::max();
+	this->left_most_y = numeric_limits<float>::max();
+	this->right_most_x = numeric_limits<float>::min();
+	this->right_most_y = numeric_limits<float>::min();
 
 	
 }
@@ -31,6 +40,14 @@ void Game::initWin()
 	int x, y;
 	while (file >> x >> y) {
 		points.emplace_back(x, y);
+
+		if (x < this->left_most_x) left_most_x = x;
+		if (x > this->right_most_x) right_most_x = x;
+
+		if (y < this->left_most_y) left_most_y = y;
+		if (y > this->right_most_y) right_most_y = y;
+
+
 	}
 	file.close();
 	/*for (auto& p : points) {
@@ -44,7 +61,8 @@ void Game::initWin()
 	// Johirul's code
 
 
-	const float roadPointReadious = 40.f; 
+	const float roadPointReadious = 30.f;
+	const float minimap_roadPointRadious = 30.f;
 
 	for (const auto& p : points)
 	{
@@ -52,13 +70,23 @@ void Game::initWin()
 		roadCircle.setRadius(roadPointReadious);
 		roadCircle.setPosition(p);
 		roadCircle.setOrigin(roadPointReadious, roadPointReadious);
-		roadCircle.setFillColor(sf::Color::Black);
+		roadCircle.setFillColor(sf::Color(60,60,60));
+
+		CircleShape minimap_roadCircle;
+		minimap_roadCircle.setRadius(minimap_roadPointRadious);
+		minimap_roadCircle.setPosition(p);
+		minimap_roadCircle.setOrigin(minimap_roadPointRadious, minimap_roadPointRadious);
+		minimap_roadCircle.setFillColor(sf::Color::Black);
+
 
 		this->road.push_back(roadCircle);
+		this->minimap_road.push_back(minimap_roadCircle);
+
 	}
 
 	this->minimap_view.setSize(this->desktopMode.width, this->desktopMode.height);
-	this->minimap_view.zoom(0.4f);
+	this->minimap_view.zoom(0.5f);
+
 }
 
 //Constructors & Destructors
@@ -116,8 +144,8 @@ void Game::update()
 		(this->speed > 0) ? this->speed -= 0.5 : this->speed = 0;
 	}
 	if (Keyboard::isKeyPressed(Keyboard::Up)) {
-		if (speed < 2)
-		this->speed += 0.1;
+		if (speed < 3)
+		this->speed += 0.2;
 	}
 	if (Keyboard::isKeyPressed(Keyboard::Right)) {
 		plr.rotate(9);
@@ -132,19 +160,21 @@ void Game::update()
 
 	view.setCenter(plr.getPosition());//Setting the view around the moving Car
 	view.setSize(160, 90);
-	view.zoom(10.f);
+	view.zoom(2.f);
 
 	if (!minimap_domain_expantion) {
 		this->minimap_view.setCenter(plr.getPosition());
 	}
-	else {
 
-		this->minimap_view.setCenter(Vector2f(this->window->getSize().x, this->window->getSize().y));
-	}
-	//Johirul's code
 	//A red dot marking the position of the Player in the MiniMap
-	mark.setPosition(plr.getPosition().x + (plr.getGlobalBounds().width / 2) * sinf(plr.getRotation() * pi / 180.f), plr.getPosition().y - (plr.getGlobalBounds().height / 2) * cosf(plr.getRotation() * pi / 180.f));
-	mark.setRotation(plr.getRotation());
+	mark.setPosition(plr.getPosition().x + (plr.getGlobalBounds().width / 2) * sinf(plr.getRotation() * \
+		pi / 180.f), plr.getPosition().y - (plr.getGlobalBounds().height / 2) * cosf(plr.getRotation() * pi / 180.f));
+
+	float mark_x_pos = plr.getPosition().x;
+
+	/*mark.setPosition(plr.getPosition().x , plr.getPosition().y ); 
+
+	mark.setRotation(plr.getRotation());*/
 
 	
 
@@ -179,7 +209,7 @@ void Game::render()
 		}
 
 		this->window->draw(plr);
-		this->window->draw(mark);  // Red pointer
+		/*this->window->draw(mark);  */// Red pointer
 
 		/*this->window->display();*/
 
@@ -189,11 +219,11 @@ void Game::render()
 
 		this->window->setView(minimap_view);
 
-		for (const auto& circle : this->road) {
+		for (const auto& circle : this->minimap_road) {
 			this->window->draw(circle);
 		}
 
-		this->window->draw(plr);
+		/*this->window->draw(plr);*/
 		this->window->draw(mark);  // Red pointer
 
 		/*this->window->display();*/
@@ -214,7 +244,7 @@ void Game::render()
 		}
 
 		this->window->draw(plr);
-		this->window->draw(mark);  // Red pointer
+		/*this->window->draw(mark);*/  // Red pointer
 
 		/*this->window->display();*/
 
@@ -222,11 +252,11 @@ void Game::render()
 		
 		this->window->setView(this->minimap_view);
 
-		for (const auto& circle : this->road) {
+		for (const auto& circle : this->minimap_road) {
 			this->window->draw(circle);
 		}
 
-		this->window->draw(plr);
+		/*this->window->draw(plr);*/
 		this->window->draw(mark);  // Red pointer
 
 		/*this->window->display();*/
