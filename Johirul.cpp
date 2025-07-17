@@ -65,13 +65,20 @@ void Game::minimap_zoom() {
 
 			this->minimap_domain_expantion = !this->minimap_domain_expantion;
 
-			this->minimap_view.setSize(this->desktopMode.width, this->desktopMode.height);
+			
+			/*this->minimap_view.setSize(this->right_most_x-this->left_most_x, this->right_most_y-this->left_most_y);*/
+			/*this->minimap_view.setCenter(Vector2f((this->right_most_x + this->left_most_x) / 2, (this->right_most_y + this->left_most_y) / 2));*/
 
 			if (this->minimap_domain_expantion) {
-				this->minimap_view.zoom(2.0f);
+				/*minimap_view.setCenter( )*/
+				this->minimap_view.setSize(this->right_most_x - this->left_most_x + 200, this->right_most_y - this->left_most_y+200);
+				this->minimap_view.setCenter(Vector2f((this->right_most_x + this->left_most_x) / 2, (this->right_most_y + this->left_most_y) / 2));
+
+				/*this->minimap_view.zoom(1.2f);*/
 			}
 			else {
-				this->minimap_view.zoom(0.3f);
+				this->minimap_view.setSize(this->desktopMode.width, this->desktopMode.height);
+				this->minimap_view.zoom(0.5f);
 			}
 		}
 	}
