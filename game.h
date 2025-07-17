@@ -36,12 +36,16 @@ private:
 
 	void Making_circle_shaped_boundary_for_car_that_it_wont_go_out_of_road();
 	vector<CircleShape> road;
+	vector<CircleShape> minimap_road;
 
 	View minimap_view;
 	RectangleShape minimap_border;
 	bool minimap_domain_expantion;
 
 	void minimap_zoom();
+	float left_most_x, right_most_x, left_most_y, right_most_y;
+
+
 
 public:
 	Game();
